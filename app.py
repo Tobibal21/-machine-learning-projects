@@ -9,7 +9,7 @@ st.set_page_config(page_title="Machine Learning Projects", page_icon="🤖", lay
 st.title("🤖 My Machine Learning Projects Showcase")
 st.markdown("Welcome! This app hosts interactive versions of the machine learning models I've built.")
 
-tab1, tab2 = st.tabs(["Experience-Driven Salary Estimation", "More Coming Soon!"])
+tab1, tab2, tab3 = st.tabs(["Experience-Driven Salary Estimation", "Air Pollution vs Industrial Activity", "Power Consumption Simulator"])
 
 with tab1:
     st.header("💼 Experience-Driven Salary Estimation")
@@ -59,5 +59,40 @@ with tab1:
         st.pyplot(fig)
 
 with tab2:
-    st.header("Stay Tuned! 🚀")
-    st.markdown("I am continuously adding more interactive models from my Jupyter Notebooks. Check back soon for Air Pollution and Power Consumption models!")
+    st.header("🏭 Air Pollution vs Industrial Activity")
+    st.markdown("This tool uses a Multiple Linear Regression model to predict PM2.5 pollution levels based on industrial output, traffic density, and temperature.")
+    
+    @st.cache_data
+    def load_pollution_data():
+        return pd.read_csv("Air pollution vs industrial activity/pollution_data.csv")
+    
+    df_poll = load_pollution_data()
+    
+    X_poll = df_poll[['industrial_output', 'traffic_density', 'temperature']]
+    y_poll = df_poll['pm25']
+    poll_model = LinearRegression()
+    poll_model.fit(X_poll, y_poll)
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.subheader("Predict Pollution Level")
+        ind_input = st.number_input("Industrial Output (Index):", min_value=0, max_value=100, value=30, step=5)
+        traf_input = st.number_input("Traffic Density (Vehicles/hr):", min_value=0, max_value=100, value=40, step=5)
+        temp_input = st.number_input("Temperature (°C):", min_value=-10.0, max_value=50.0, value=25.0, step=1.0)
+        
+        if st.button("Predict PM2.5 🌫️"):
+            pred_pm25 = poll_model.predict([[ind_input, traf_input, temp_input]])[0]
+            st.warning(f"**Predicted PM2.5 Level:** {pred_pm25:.1f} µg/m³")
+            
+    with col2:
+        st.subheader("Data Overview")
+        st.dataframe(df_poll)
+        st.write("Model Coefficients:")
+        st.write(f"- Industrial Output: {poll_model.coef_[0]:.2f}")
+        st.write(f"- Traffic Density: {poll_model.coef_[1]:.2f}")
+        st.write(f"- Temperature: {poll_model.coef_[2]:.2f}")
+
+with tab3:
+    st.header("⚡ Power Consumption Simulator")
+    st.info("I noticed you already built a comprehensive 300+ line Streamlit app for Power Consumption! You can deploy it directly by setting your Main file path to `power consumption/app.py` in Streamlit Cloud.")
